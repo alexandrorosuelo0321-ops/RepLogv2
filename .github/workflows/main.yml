@@ -1,37 +1,26 @@
-name: Build RepLog APK
+steps:
+  - name: Scarica il codice
+    uses: actions/checkout@v4
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+  - name: Configura Java
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '17'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+  - name: Configura Gradle
+    uses: gradle/actions/setup-gradle@v4
+    with:
+      gradle-version: '8.9'
 
-    steps:
-      - name: Scarica il codice
-        uses: actions/checkout@v4
+  - name: Compila RepLog
+    working-directory: RepLogv2
+    run: ./gradlew assembleDebug --no-daemon --stacktrace --info
 
-      - name: Configura Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Configura Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
-
-      - name: Compila RepLog
-        run: gradle assembleDebug
-
-      - name: Pubblica APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: RepLog-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 7
+  - name: Pubblica APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: RepLog-APK
+      path: RepLogv2/app/build/outputs/apk/debug/app-debug.apk
+      if-no-files-found: error
+      retention-days: 7
